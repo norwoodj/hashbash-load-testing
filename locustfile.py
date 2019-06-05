@@ -36,22 +36,27 @@ class HashbashTasks(TaskSet):
     def rainbow_table_page_task(self):
         self.fetch_static_assets("/rainbow-tables")
 
-    @task(40)
+    @task(20)
     def rainbow_table_list(self):
         response = self.client.get("/api/rainbow-table")
         rainbow_tables = response.json()
         HashbashTasks.available_ids = [r["id"] for r in rainbow_tables]
 
     @task(20)
+    def rainbow_table_count(self):
+        self.client.get("/api/rainbow-table/count")
+
+    @task(20)
     def rainbow_table_details(self):
         if len(HashbashTasks.available_ids) == 0:
-            LOGGER.info("Still no available rainbow tables to query for")
+            LOGGER.info("No available rainbow tables to query for. Skipping detail task")
             return
 
         table_id = random.choice(HashbashTasks.available_ids)
-        response = self.client.get(f"/api/rainbow-table/{table_id}")
-        response = self.client.get(f"/api/rainbow-table/{table_id}/search")
-        response = self.client.get(f"/api/rainbow-table/{table_id}/searchResults")
+        self.client.get(f"/api/rainbow-table/{table_id}")
+        self.client.get(f"/api/rainbow-table/{table_id}/search")
+        self.client.get(f"/api/rainbow-table/{table_id}/search/count")
+        self.client.get(f"/api/rainbow-table/{table_id}/searchResults")
 
 
 
